@@ -1,0 +1,206 @@
+<Window x:Class="AudioSlice.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:AudioSlice.ViewModels"
+        xmlns:ctrl="clr-namespace:AudioSlice.Controls"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="AudioSlice" Height="500" Width="1000"
+        Background="Transparent" AllowsTransparency="True"
+        WindowStyle="None" WindowStartupLocation="CenterScreen">
+
+    <WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="40" 
+                            ResizeBorderThickness="7" 
+                            GlassFrameThickness="0" 
+                            CornerRadius="10"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+        
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Padding" Value="15,5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RoundButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E3250"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FadeButton" TargetType="Button">
+            <Setter Property="Background" Value="#1E3250"/>
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="1" BorderBrush="#23FFAD" Opacity="0.8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Border BorderBrush="#1E3250" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
+        <Grid Background="#0A1428" MouseLeftButtonDown="OnBackgroundClick">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Barra de Título Customizada -->
+            <Grid Grid.Row="0">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+                        <GradientStop Color="#0F2040" Offset="0.0"/>
+                        <GradientStop Color="#0A1428" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
+                    <TextBlock Text="AudioSlice" FontWeight="Bold" FontSize="16" Foreground="#23FFAD"/>
+                    <TextBlock Text="{Binding FileName}" Margin="15,0" Foreground="White" Opacity="0.7" FontStyle="Italic" VerticalAlignment="Center" FontSize="12"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="↺" Command="{Binding ResetCommand}" Width="40" Height="40" 
+                            Background="Transparent" BorderThickness="0" Foreground="White" Opacity="0.6" 
+                            ToolTip="Redefinir" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    
+                    <Button Content="–" Width="45" Height="40" Background="Transparent" BorderThickness="0" Foreground="White"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="BtnMinimize_Click" FontSize="16"/>
+                    
+                    <Button Content="✕" Width="45" Height="40" Background="Transparent" BorderThickness="0"
+                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="BtnClose_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="White"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E74C3C"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Row="1" Margin="20,20" Background="Transparent">
+                <!-- Waveform -->
+                <ctrl:WaveformControl x:Name="WaveformCtrl"
+                    Points="{Binding WaveformPoints}" 
+                    Duration="{Binding Duration}" 
+                    StartTime="{Binding StartTime, Mode=TwoWay}" 
+                    EndTime="{Binding EndTime, Mode=TwoWay}"
+                    FadeIn="{Binding FadeIn}"
+                    FadeOut="{Binding FadeOut}"
+                    Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVis}}"/>
+                
+                <TextBlock Text="Clique aqui para selecionar seu arquivo MP3" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center" 
+                           FontSize="18" Opacity="0.5" IsHitTestVisible="False">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Pop-ups Fade -->
+                <Border Background="#000" CornerRadius="10" Padding="15,10" 
+                        Width="160" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                        Margin="50,0,0,10"
+                        Visibility="{Binding IsFadeInPopupOpen, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding FadeIn, StringFormat='Fade in {0:F0} s'}" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <Slider Minimum="0" Maximum="20" Value="{Binding FadeIn}" Foreground="#23FFAD"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Background="#000" CornerRadius="10" Padding="15,10" 
+                        Width="160" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                        Margin="100,0,0,10"
+                        Visibility="{Binding IsFadeOutPopupOpen, Converter={StaticResource BoolToVis}}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding FadeOut, StringFormat='Fade out {0:F0} s'}" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                        <Slider Minimum="0" Maximum="20" Value="{Binding FadeOut}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Grid.Row="2" Padding="25" Background="#0F2040">
+                <DockPanel>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <Button Content="{Binding PlayIcon}" Command="{Binding PlayCommand}" Style="{StaticResource RoundButton}" Width="60" Height="40" Margin="0,0,20,0"/>
+                        
+                        <Button Command="{Binding ToggleFadeInCommand}" Style="{StaticResource FadeButton}">
+                            <Path Data="M0,40 L40,0 L40,40 Z" Fill="#23FFAD" Width="15" Height="15" Stretch="Fill" Opacity="0.8"/>
+                        </Button>
+                        <Button Command="{Binding ToggleFadeOutCommand}" Style="{StaticResource FadeButton}">
+                            <Path Data="M0,0 L40,40 L0,40 Z" Fill="#23FFAD" Width="15" Height="15" Stretch="Fill" Opacity="0.8"/>
+                        </Button>
+
+                        <Border Background="#1E3250" CornerRadius="12" Padding="15,5" Margin="20,0,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Início:" Foreground="White" Opacity="0.7" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBox Text="{Binding StartTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                         Width="60" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
+                                <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="13" VerticalAlignment="Center" Margin="3,0,12,0"/>
+                                <TextBlock Text="—" Foreground="White" Opacity="0.3" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                
+                                <TextBlock Text="Fim:" Foreground="White" Opacity="0.7" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                <TextBox Text="{Binding EndTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                         Width="60" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
+                                <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="13" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                        <Button Content="Guardar" Command="{Binding ProcessCommand}" 
+                                Background="White" Foreground="Black" FontWeight="Bold" FontSize="18"
+                                Padding="50,15" Margin="15,0,0,0" MinWidth="180" Style="{StaticResource ModernButton}"/>
+
+                        <Button Content="Abrir" Command="{Binding SelectFileCommand}" 
+                                Background="White" Foreground="Black" FontWeight="Bold" FontSize="18"
+                                Padding="50,15" Margin="15,0,0,0" MinWidth="180" Style="{StaticResource ModernButton}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

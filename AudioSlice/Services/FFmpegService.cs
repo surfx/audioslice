@@ -10,7 +10,14 @@ namespace AudioSlice.Services
 {
     public class FFmpegService
     {
-        private readonly string _ffmpegPath = @"D:\programas\executaveis\ffmpeg\bin\ffmpeg.exe";
+        private readonly string _ffmpegPath;
+
+        public FFmpegService()
+        {
+            // Tenta encontrar ffmpeg.exe na pasta do executável, senão usa o caminho fixo
+            string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
+            _ffmpegPath = File.Exists(localPath) ? localPath : @"D:\programas\executaveis\ffmpeg\bin\ffmpeg.exe";
+        }
 
         public async Task ProcessAudioAsync(string inputPath, string outputPath, List<AudioSegment> segments)
         {

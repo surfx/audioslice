@@ -10,19 +10,10 @@ namespace AudioSlice.Services
 {
     public class FFmpegService
     {
-        private readonly string _ffmpegPath;
-
-        public FFmpegService()
+        public async Task ProcessAudioAsync(string ffmpegPath, string inputPath, string outputPath, List<AudioSegment> segments)
         {
-            // Tenta encontrar ffmpeg.exe na pasta do executável, senão usa o caminho fixo
-            string localPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg.exe");
-            _ffmpegPath = File.Exists(localPath) ? localPath : @"D:\programas\executaveis\ffmpeg\bin\ffmpeg.exe";
-        }
-
-        public async Task ProcessAudioAsync(string inputPath, string outputPath, List<AudioSegment> segments)
-        {
-            if (!File.Exists(_ffmpegPath))
-                throw new FileNotFoundException("FFmpeg não encontrado em: " + _ffmpegPath);
+            if (!File.Exists(ffmpegPath))
+                throw new FileNotFoundException("FFmpeg não encontrado em: " + ffmpegPath);
 
             var seg = segments.FirstOrDefault();
             if (seg == null) return;
@@ -38,9 +29,6 @@ namespace AudioSlice.Services
             double fadeOutStart = Math.Max(0, cutDuration - actualFadeOut);
 
             // Construção do filtro afade
-            // t=in -> Volume sobe | t=out -> Volume desce
-            // ss=0 -> Começa no início do segmento
-            // st=[time] -> Começa no tempo X do segmento
             string filter = $"afade=t=in:ss=0:d={actualFadeIn.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}," +
                            $"afade=t=out:st={fadeOutStart.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}:d={actualFadeOut.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)}";
 
@@ -48,17 +36,17 @@ namespace AudioSlice.Services
                           $"-to {seg.EndTime.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture)} " +
                           $"-i \"{inputPath}\" -map_metadata 0 -af \"{filter}\" -c:a libmp3lame -b:a 320k \"{outputPath}\"";
 
-            await RunFFmpegAsync(args);
+            await RunFFmpegAsync(ffmpegPath, args);
         }
 
-        private Task RunFFmpegAsync(string arguments)
+        private Task RunFFmpegAsync(string ffmpegPath, string arguments)
         {
             var tcs = new TaskCompletionSource<bool>();
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = _ffmpegPath,
+                    FileName = ffmpegPath,
                     Arguments = arguments,
                     UseShellExecute = false,
                     CreateNoWindow = true,

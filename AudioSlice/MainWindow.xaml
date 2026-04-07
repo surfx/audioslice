@@ -163,43 +163,63 @@
             </Grid>
 
             <Border Grid.Row="2" Padding="25" Background="#0F2040">
-                <DockPanel>
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                        <Button Content="{Binding PlayIcon}" Command="{Binding PlayCommand}" Style="{StaticResource RoundButton}" Width="60" Height="40" Margin="0,0,20,0"/>
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,15">
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                            <Button Content="{Binding PlayIcon}" Command="{Binding PlayCommand}" Style="{StaticResource RoundButton}" Width="60" Height="40" Margin="0,0,20,0"/>
+                            
+                            <Button Command="{Binding ToggleFadeInCommand}" Style="{StaticResource FadeButton}">
+                                <Path Data="M0,40 L40,0 L40,40 Z" Fill="#23FFAD" Width="15" Height="15" Stretch="Fill" Opacity="0.8"/>
+                            </Button>
+                            <Button Command="{Binding ToggleFadeOutCommand}" Style="{StaticResource FadeButton}">
+                                <Path Data="M0,0 L40,40 L0,40 Z" Fill="#23FFAD" Width="15" Height="15" Stretch="Fill" Opacity="0.8"/>
+                            </Button>
+
+                            <Border Background="#1E3250" CornerRadius="12" Padding="15,5" Margin="20,0,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Início:" Foreground="White" Opacity="0.7" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBox Text="{Binding StartTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                             Width="60" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
+                                    <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="13" VerticalAlignment="Center" Margin="3,0,12,0"/>
+                                    <TextBlock Text="—" Foreground="White" Opacity="0.3" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    
+                                    <TextBlock Text="Fim:" Foreground="White" Opacity="0.7" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                    <TextBox Text="{Binding EndTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
+                                             Width="60" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
+                                    <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="13" VerticalAlignment="Center" Margin="3,0,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                         
-                        <Button Command="{Binding ToggleFadeInCommand}" Style="{StaticResource FadeButton}">
-                            <Path Data="M0,40 L40,0 L40,40 Z" Fill="#23FFAD" Width="15" Height="15" Stretch="Fill" Opacity="0.8"/>
-                        </Button>
-                        <Button Command="{Binding ToggleFadeOutCommand}" Style="{StaticResource FadeButton}">
-                            <Path Data="M0,0 L40,40 L0,40 Z" Fill="#23FFAD" Width="15" Height="15" Stretch="Fill" Opacity="0.8"/>
-                        </Button>
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <Button Content="Guardar" Command="{Binding ProcessCommand}" 
+                                    Background="White" Foreground="Black" FontWeight="Bold" FontSize="18"
+                                    Padding="50,15" Margin="15,0,0,0" MinWidth="180" Style="{StaticResource ModernButton}"/>
 
-                        <Border Background="#1E3250" CornerRadius="12" Padding="15,5" Margin="20,0,0,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Início:" Foreground="White" Opacity="0.7" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBox Text="{Binding StartTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
-                                         Width="60" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
-                                <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="13" VerticalAlignment="Center" Margin="3,0,12,0"/>
-                                <TextBlock Text="—" Foreground="White" Opacity="0.3" FontSize="14" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                
-                                <TextBlock Text="Fim:" Foreground="White" Opacity="0.7" FontSize="13" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                <TextBox Text="{Binding EndTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="14" VerticalAlignment="Center"
-                                         Width="60" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
-                                <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="13" VerticalAlignment="Center" Margin="3,0,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                    
-                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Button Content="Guardar" Command="{Binding ProcessCommand}" 
-                                Background="White" Foreground="Black" FontWeight="Bold" FontSize="18"
-                                Padding="50,15" Margin="15,0,0,0" MinWidth="180" Style="{StaticResource ModernButton}"/>
+                            <Button Content="Abrir" Command="{Binding SelectFileCommand}" 
+                                    Background="White" Foreground="Black" FontWeight="Bold" FontSize="18"
+                                    Padding="50,15" Margin="15,0,0,0" MinWidth="180" Style="{StaticResource ModernButton}"/>
+                        </StackPanel>
+                    </DockPanel>
 
-                        <Button Content="Abrir" Command="{Binding SelectFileCommand}" 
-                                Background="White" Foreground="Black" FontWeight="Bold" FontSize="18"
-                                Padding="50,15" Margin="15,0,0,0" MinWidth="180" Style="{StaticResource ModernButton}"/>
-                    </StackPanel>
-                </DockPanel>
+                    <!-- Configuração FFmpeg -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="ffmpeg exe:" Foreground="White" Opacity="0.6" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
+                        <TextBox Grid.Column="1" Text="{Binding FFmpegPath, UpdateSourceTrigger=PropertyChanged}" 
+                                 Background="#0A1428" Foreground="White" Opacity="0.5" BorderThickness="0" Padding="5,2" FontSize="11" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Button Content="..." Command="{Binding BrowseFFmpegCommand}" 
+                                    Width="30" Height="20" Margin="5,0,0,0" Background="#1E3250" Foreground="White" BorderThickness="0" FontSize="10"/>
+                            <Button Content="reset" Command="{Binding ResetFFmpegCommand}" 
+                                    Width="40" Height="20" Margin="5,0,0,0" Background="#1E3250" Foreground="White" BorderThickness="0" FontSize="10"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
             </Border>
         </Grid>
     </Border>

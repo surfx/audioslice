@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -28,6 +29,9 @@ namespace MediaSlice.Controls
 
         public event Action<double>? RequestPreview;
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private bool _isDraggingStart;
+        private bool _isDraggingEnd;
 
         public WaveformControl()
         {
@@ -86,22 +90,39 @@ namespace MediaSlice.Controls
         private void UpdateOverlay()
         {
             if (Duration <= 0 || ActualWidth <= 0) return;
+            
+            double handleOffset = LeftMarker.ActualWidth / 2;
+            
             double startX = (StartTime / Duration) * ActualWidth;
             double endX = (EndTime / Duration) * ActualWidth;
+            
             LeftDimmer.Width = Math.Max(0, startX);
             Canvas.SetLeft(RightDimmer, endX);
             RightDimmer.Width = Math.Max(0, ActualWidth - endX);
-            Canvas.SetLeft(LeftMarker, startX);
-            Canvas.SetLeft(RightMarker, endX);
+            
+            // Posiciona as alças centralizadas no ponto do tempo
+            Canvas.SetLeft(LeftMarker, startX - handleOffset);
+            Canvas.SetLeft(RightMarker, endX - handleOffset);
 
-            // Linha de progresso da exportação
             if (ProgressPosition >= 0) {
                 double progX = (ProgressPosition / Duration) * ActualWidth;
-                LeftMarker.Width = 3; LeftMarker.Opacity = 1;
-                Canvas.SetLeft(LeftMarker, progX);
+                ProgressMarker.Visibility = Visibility.Visible;
+                Canvas.SetLeft(ProgressMarker, Math.Clamp(progX, 0, ActualWidth - 2));
             } else {
-                LeftMarker.Width = 1; LeftMarker.Opacity = 0.5;
+                ProgressMarker.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void OnMarkerDown(object sender, MouseButtonEventArgs e)
+        {
+            var marker = sender as FrameworkElement;
+            if (marker == null) return;
+
+            if (marker.Name == "LeftMarker") _isDraggingStart = true;
+            else if (marker.Name == "RightMarker") _isDraggingEnd = true;
+
+            marker.CaptureMouse();
+            e.Handled = true;
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -109,11 +130,29 @@ namespace MediaSlice.Controls
             if (Duration <= 0 || ActualWidth <= 0) return;
             var pos = e.GetPosition(this);
             double clickedTime = (pos.X / ActualWidth) * Duration;
+            
             double distToStart = Math.Abs(clickedTime - StartTime);
             double distToEnd = Math.Abs(clickedTime - EndTime);
-            if (distToStart < distToEnd) StartTime = Math.Min(clickedTime, EndTime - 0.1);
-            else EndTime = Math.Max(clickedTime, StartTime + 0.1);
-            RequestPreview?.Invoke(clickedTime);
+            
+            if (distToStart < distToEnd) { StartTime = Math.Min(clickedTime, EndTime - 0.1); RequestPreview?.Invoke(StartTime); }
+            else { EndTime = Math.Max(clickedTime, StartTime + 0.1); RequestPreview?.Invoke(Math.Max(StartTime, EndTime - 3.0)); }
+        }
+
+        private void OnMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDraggingStart && !_isDraggingEnd) return;
+
+            var pos = e.GetPosition(this);
+            double newTime = Math.Clamp((pos.X / ActualWidth) * Duration, 0, Duration);
+
+            if (_isDraggingStart) { StartTime = Math.Min(newTime, EndTime - 0.1); RequestPreview?.Invoke(StartTime); }
+            else if (_isDraggingEnd) { EndTime = Math.Max(newTime, StartTime + 0.1); }
+        }
+
+        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_isDraggingStart) { _isDraggingStart = false; LeftMarker.ReleaseMouseCapture(); }
+            if (_isDraggingEnd) { _isDraggingEnd = false; RightMarker.ReleaseMouseCapture(); RequestPreview?.Invoke(Math.Max(StartTime, EndTime - 3.0)); }
         }
 
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

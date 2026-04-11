@@ -17,7 +17,18 @@ namespace MediaSlice
             
             vm.PropertyChanged += (s, e) =>
             {
-                if (e.PropertyName == nameof(vm.PlayIcon))
+                if (e.PropertyName == nameof(vm.InputFilePath))
+                {
+                    if (!string.IsNullOrEmpty(vm.InputFilePath) && vm.IsVideo)
+                    {
+                        VideoPlayer.Source = new Uri(vm.InputFilePath);
+                    }
+                    else
+                    {
+                        VideoPlayer.Source = null;
+                    }
+                }
+                else if (e.PropertyName == nameof(vm.PlayIcon))
                 {
                     if (vm.PlayIcon == "⏸" && vm.IsVideo) VideoPlayer.Play();
                     else if (vm.IsVideo) VideoPlayer.Pause();
@@ -26,7 +37,14 @@ namespace MediaSlice
 
             vm.RequestSync += (pos) => 
             {
-                if (vm.IsVideo) VideoPlayer.Position = TimeSpan.FromSeconds(pos);
+                if (vm.IsVideo) 
+                {
+                    // Só sincroniza forçadamente se estiver pausado ou exportando (ExportTimePosition >= 0)
+                    if (vm.PlayIcon == "▶" || vm.IsProcessing)
+                    {
+                        VideoPlayer.Position = TimeSpan.FromSeconds(pos);
+                    }
+                }
             };
             
             WaveformCtrl.RequestPreview += (pos) => 

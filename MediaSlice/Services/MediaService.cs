@@ -5,9 +5,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NAudio.Wave;
 
-namespace AudioSlice.Services
+namespace MediaSlice.Services
 {
-    public class AudioService
+    public class MediaService
     {
         public async Task<float[]> GetWaveformDataAsync(string filePath, int points)
         {

@@ -1,9 +1,9 @@
-<UserControl x:Class="AudioSlice.Controls.WaveformControl"
+<UserControl x:Class="MediaSlice.Controls.WaveformControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="200" MouseLeftButtonDown="OnMouseLeftButtonDown" 
+             MouseLeftButtonDown="OnMouseLeftButtonDown" 
              MouseLeftButtonUp="OnMouseLeftButtonUp" MouseMove="OnMouseMove">
-    <Grid Background="#0F2040" ClipToBounds="True">
+    <Grid Background="Transparent" ClipToBounds="True">
         <Canvas x:Name="WaveformCanvas">
             <Polyline x:Name="WaveformPolyline" Stroke="#23FFAD" StrokeThickness="1" VerticalAlignment="Center" />
         </Canvas>

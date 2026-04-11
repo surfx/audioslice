@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-namespace AudioSlice.Controls
+namespace MediaSlice.Controls
 {
     public partial class WaveformControl : UserControl, INotifyPropertyChanged
     {

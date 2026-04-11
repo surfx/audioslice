@@ -6,7 +6,7 @@ $path_script = $PSScriptRoot
 Set-Location $path_script
 
 # Encerra todas as instâncias do AudioSlice.exe
-$processName = "AudioSlice"
+$processName = "MediaSlice"
 $processes = Get-Process -Name $processName -ErrorAction SilentlyContinue
 
 if ($processes) {

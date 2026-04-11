@@ -1,7 +1,6 @@
-﻿<Application x:Class="AudioSlice.App"
+<Application x:Class="MediaSlice.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AudioSlice"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          

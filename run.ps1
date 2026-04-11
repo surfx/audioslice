@@ -6,7 +6,7 @@ $path_script = $PSScriptRoot
 Set-Location $path_script
 
 & "$PSScriptRoot\kill.ps1"
-Set-Location "$PSScriptRoot\AudioSlice"
+Set-Location "$PSScriptRoot\MediaSlice"
 dotnet run
 
 Set-Location $path_script

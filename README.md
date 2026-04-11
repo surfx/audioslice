@@ -1,53 +1,45 @@
-# 🎵 AudioSlice
+# 🎬 MediaSlice
 
-AudioSlice é um cortador de MP3 moderno e intuitivo desenvolvido em C# com WPF. Ele permite realizar cortes precisos em arquivos de áudio, aplicar efeitos de *Fade In* e *Fade Out*, e exportar o resultado com qualidade máxima (320kbps), preservando todos os metadados originais.
+Cortador de mídia desenvolvido em C# com WPF. Permite realizar cortes precisos em vídeos e áudios, aplicar efeitos de *Fade In* e *Fade Out*, e exportar o resultado com qualidade máxima.
 
-![Interface do AudioSlice](AudioSlice/assets/audioslice.png) *(Placeholder para screenshot)*
+![Interface do MediaSlice](MediaSlice/assets/MediaSlice.png)
 
 ## ✨ Funcionalidades
 
-- **Visualização de Onda (Waveform):** Interface gráfica que mostra a amplitude do áudio para facilitar a identificação dos pontos de corte.
-- **Seleção Interativa:** Arraste as alças diretamente na onda sonora ou digite os tempos exatos nos campos de entrada.
-- **Efeitos de Fade:** Controles deslizantes para aplicar desvanecimento no início (*Fade In*) e no final (*Fade Out*) do clipe.
-- **Pré-visualização Inteligente:** Ao mover uma alça, o aplicativo toca automaticamente o trecho ajustado para conferência.
-- **Exportação de Alta Fidelidade:** 
-  - Bitrate constante de **320 kbps**.
-  - Preservação total de metadados (Artista, Álbum, Capa, etc.).
-  - Nome de arquivo automático (`cut_nome_original.mp3`).
+- **Suporte a Vídeo e Áudio:** Trabalhe com MP4, MKV, AVI, MOV, MP3, WAV e outros formatos comuns.
+- **Visualização de Onda (Waveform):** Interface gráfica que mostra a amplitude do áudio para identificar pontos de corte.
+- **Seleção Interativa:** Arraste as alças na onda ou digite os tempos exatos nos campos de entrada.
+- **Efeitos de Fade:** Controles para aplicar desvanecimento no início (*Fade In*) e no final (*Fade Out*).
+- **Pré-visualização Inteligente:** Ao mover uma alça, o aplicativo toca automaticamente o trecho ajustado.
+- **Exportação com Alta Fidelidade:** Preservação total de metadados e qualidade original.
 - **Interface Moderna:** Janela sem bordas (*borderless*), tema escuro e controles personalizados.
 
-## 🚀 Tecnologias Utilizadas
+## 🚀 Tecnologias
 
-- **C# / .NET 10.0**
+- **C# / .NET**
 - **WPF (Windows Presentation Foundation)**
-- **NAudio:** Para reprodução de áudio e extração de dados da forma de onda.
-- **FFmpeg:** Motor de processamento de áudio para cortes e efeitos de fade.
+- **NAudio:** Reprodução de áudio e extração de dados da forma de onda.
+- **FFmpeg:** Processamento de mídia para cortes e efeitos.
 
 ## 🛠️ Pré-requisitos
 
-Para que o processamento de áudio funcione, você precisa do **FFmpeg** instalado em sua máquina.
-O caminho atual configurado no projeto é:
-`D:\programas\executaveis\ffmpeg\bin\ffmpeg.exe`
+O processamento requer o **FFmpeg** instalado.
+Caminho configurado: `D:\programas\executaveis\ffmpeg\bin\ffmpeg.exe`
 
-> **Nota:** Se o seu FFmpeg estiver em outro local, altere a variável `_ffmpegPath` no arquivo `AudioSlice/Services/FFmpegService.cs`.
+> Altere `_defaultFFmpeg` em `MediaSlice/ViewModels/MainViewModel.cs` se necessário.
 
 ## 📦 Como Executar
 
-1. Clone o repositório.
-2. Certifique-se de ter o SDK do .NET 10 instalado.
-3. Abra o terminal na pasta raiz e execute:
-   ```powershell
-   ./run.ps1
-   ```
-   ou utilize o comando:
-   ```powershell
-   dotnet run --project AudioSlice/AudioSlice.csproj
-   ```
+```powershell
+./run.ps1
+# ou
+dotnet run --project MediaSlice/MediaSlice.csproj
+```
 
-## ⌨️ Comandos de Atalho
+## ⌨️ Atalhos
 
 - **Espaço:** Play/Pause.
-- **Botão Redefinir (↺):** Volta a seleção para o arquivo completo e remove os fades.
+- **↺:** Redefinir seleção e remover fades.
 
 ---
-Desenvolvido como um protótipo funcional para edição rápida de áudio.
+Desenvolvido para edição rápida de mídia.

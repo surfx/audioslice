@@ -82,13 +82,20 @@ namespace AudioSlice.ViewModels
             _stopTimer.Tick += (s, e) => StopAudio();
         }
 
+        public void LoadFile(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath) || !System.IO.File.Exists(filePath)) return;
+            
+            InputFilePath = filePath;
+            LoadAudioData();
+        }
+
         public void SelectFile()
         {
             var openFileDialog = new OpenFileDialog { Filter = "Arquivos MP3 (*.mp3)|*.mp3" };
             if (openFileDialog.ShowDialog() == true)
             {
-                InputFilePath = openFileDialog.FileName;
-                LoadAudioData();
+                LoadFile(openFileDialog.FileName);
             }
         }
 

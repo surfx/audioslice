@@ -69,7 +69,7 @@
     </Window.DataContext>
 
     <Border BorderBrush="#1E3250" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
-        <Grid Background="#0A1428" MouseLeftButtonDown="OnBackgroundClick">
+        <Grid Background="#0A1428" MouseLeftButtonDown="OnBackgroundClick" AllowDrop="True" Drop="OnFilesDropped" DragOver="OnDragOver">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
                 <RowDefinition Height="*" />

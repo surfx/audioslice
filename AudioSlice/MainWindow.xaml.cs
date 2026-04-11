@@ -50,6 +50,40 @@ namespace AudioSlice
             }
         }
 
+        private void OnDragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void OnFilesDropped(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                if (files != null && files.Length > 0)
+                {
+                    string file = files[0];
+                    if (file.ToLower().EndsWith(".mp3"))
+                    {
+                        var vm = (MainViewModel)DataContext;
+                        vm.LoadFile(file);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Por favor, arraste apenas arquivos MP3.", "Formato Inválido", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+            }
+        }
+
         private void BtnMinimize_Click(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
         private void BtnClose_Click(object sender, RoutedEventArgs e) => Close();
     }

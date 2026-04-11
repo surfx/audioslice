@@ -1,47 +1,22 @@
 <UserControl x:Class="MediaSlice.Controls.WaveformControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             MouseLeftButtonDown="OnMouseLeftButtonDown" 
-             MouseLeftButtonUp="OnMouseLeftButtonUp" MouseMove="OnMouseMove">
+             MouseLeftButtonDown="OnMouseLeftButtonDown">
     <Grid Background="Transparent" ClipToBounds="True">
-        <Canvas x:Name="WaveformCanvas">
-            <Polyline x:Name="WaveformPolyline" Stroke="#23FFAD" StrokeThickness="1" VerticalAlignment="Center" />
-        </Canvas>
+        <!-- O fundo da waveform (gráfico sólido) -->
+        <Path x:Name="WaveformPath" Fill="#23FFAD" VerticalAlignment="Center" IsHitTestVisible="False"/>
         
-        <Canvas>
-            <!-- Esquerda (Escurecido) - Mantemos sem clique para não atrapalhar o arraste -->
-            <Rectangle x:Name="LeftDimmer" Fill="#000" Opacity="0.5" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}" IsHitTestVisible="False"/>
+        <!-- Área de Preview/Click -->
+        <Canvas x:Name="ClickCanvas" Background="Transparent" MouseLeftButtonDown="OnMouseLeftButtonDown"/>
+        
+        <!-- Sobreposição de Seleção (Sem alças, apenas sombras) -->
+        <Canvas x:Name="OverlayCanvas" IsHitTestVisible="False">
+            <Rectangle x:Name="LeftDimmer" Fill="#0A1428" Opacity="0.7" Height="2000"/>
+            <Rectangle x:Name="RightDimmer" Fill="#0A1428" Opacity="0.7" Height="2000"/>
             
-            <!-- Direita (Escurecido) -->
-            <Rectangle x:Name="RightDimmer" Fill="#000" Opacity="0.5" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}" IsHitTestVisible="False"/>
-
-            <!-- Handle Esquerdo -->
-            <Canvas x:Name="LeftHandleGroup" Cursor="SizeWE">
-                <Border Background="#23FFAD" Width="10" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}" CornerRadius="2">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Ellipse Fill="#0A1428" Width="2" Height="2" Margin="0,2"/>
-                        <Ellipse Fill="#0A1428" Width="2" Height="2" Margin="0,2"/>
-                        <Ellipse Fill="#0A1428" Width="2" Height="2" Margin="0,2"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="White" CornerRadius="10" Padding="5,2" Canvas.Top="-30" Canvas.Left="-20">
-                    <TextBlock Text="{Binding StartTimeStr, RelativeSource={RelativeSource AncestorType=UserControl}}" Foreground="Black" FontSize="10" FontWeight="Bold"/>
-                </Border>
-            </Canvas>
-
-            <!-- Handle Direito -->
-            <Canvas x:Name="RightHandleGroup" Cursor="SizeWE">
-                <Border Background="#23FFAD" Width="10" Height="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Canvas}}" CornerRadius="2">
-                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Ellipse Fill="#0A1428" Width="2" Height="2" Margin="0,2"/>
-                        <Ellipse Fill="#0A1428" Width="2" Height="2" Margin="0,2"/>
-                        <Ellipse Fill="#0A1428" Width="2" Height="2" Margin="0,2"/>
-                    </StackPanel>
-                </Border>
-                <Border Background="White" CornerRadius="10" Padding="5,2" Canvas.Top="-30" Canvas.Left="-20">
-                    <TextBlock Text="{Binding EndTimeStr, RelativeSource={RelativeSource AncestorType=UserControl}}" Foreground="Black" FontSize="10" FontWeight="Bold"/>
-                </Border>
-            </Canvas>
+            <!-- Linhas finas apenas para marcar onde está o corte -->
+            <Rectangle x:Name="LeftMarker" Fill="#23FFAD" Width="1" Height="2000" Opacity="0.5"/>
+            <Rectangle x:Name="RightMarker" Fill="#23FFAD" Width="1" Height="2000" Opacity="0.5"/>
         </Canvas>
     </Grid>
 </UserControl>

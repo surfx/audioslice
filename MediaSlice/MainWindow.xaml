@@ -4,271 +4,106 @@
         xmlns:vm="clr-namespace:MediaSlice.ViewModels"
         xmlns:ctrl="clr-namespace:MediaSlice.Controls"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
-        Title="MediaSlice" Height="680" Width="1100"
-        MinHeight="600" MinWidth="800"
-        Background="Transparent" AllowsTransparency="True"
-        WindowStyle="None" WindowStartupLocation="CenterScreen">
+        Title="MediaSlice" Height="680" Width="1100" MinHeight="600" MinWidth="800"
+        Background="Transparent" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="40" 
-                            ResizeBorderThickness="7" 
-                            GlassFrameThickness="0" 
-                            CornerRadius="10"/>
+        <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="7" GlassFrameThickness="0" CornerRadius="10"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
-        
         <Style x:Key="ModernButton" TargetType="Button">
-            <Setter Property="Padding" Value="15,5"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="12">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Padding" Value="15,5"/><Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" CornerRadius="12"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value></Setter>
         </Style>
-
         <Style x:Key="RoundButton" TargetType="Button">
-            <Setter Property="Background" Value="#1E3250"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="20"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Background" Value="#1E3250"/><Setter Property="Foreground" Value="White"/><Setter Property="FontSize" Value="20"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" CornerRadius="8"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value></Setter>
         </Style>
-
         <Style x:Key="FadeButton" TargetType="Button">
-            <Setter Property="Background" Value="#1E3250"/>
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Margin" Value="5,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="1" BorderBrush="#23FFAD" Opacity="0.8">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Background" Value="#1E3250"/><Setter Property="Width" Value="40"/><Setter Property="Height" Value="40"/><Setter Property="Margin" Value="5,0"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border Background="{TemplateBinding Background}" CornerRadius="8" BorderThickness="1" BorderBrush="#23FFAD" Opacity="0.8"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border></ControlTemplate></Setter.Value></Setter>
         </Style>
     </Window.Resources>
     
-    <Window.DataContext>
-        <vm:MainViewModel />
-    </Window.DataContext>
+    <Window.DataContext><vm:MainViewModel /></Window.DataContext>
 
     <Border BorderBrush="#1E3250" BorderThickness="1" CornerRadius="10" ClipToBounds="True">
-        <Grid Background="#0A1428" MouseLeftButtonDown="OnBackgroundClick" AllowDrop="True" Drop="OnFilesDropped" DragOver="OnDragOver">
+        <Grid Background="#0A1428" MouseLeftButtonDown="OnBackgroundClick" AllowDrop="True" Drop="OnFilesDropped" DragOver="OnDragOver" IsEnabled="{Binding !IsProcessing}">
             <Grid.RowDefinitions>
-                <RowDefinition Height="40" />    <!-- 0: Título -->
-                <RowDefinition Height="*" />     <!-- 1: Vídeo -->
-                <RowDefinition Height="120" />   <!-- 2: Waveform -->
-                <RowDefinition Height="Auto" />  <!-- 3: Controles -->
+                <RowDefinition Height="40" /><RowDefinition Height="*" /><RowDefinition Height="120" /><RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <!-- Barra de Título Customizada -->
+            <!-- Título -->
             <Grid Grid.Row="0">
-                <Grid.Background>
-                    <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-                        <GradientStop Color="#0F2040" Offset="0.0"/>
-                        <GradientStop Color="#0A1428" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Grid.Background>
-
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0">
-                    <TextBlock Text="MediaSlice" FontWeight="Bold" FontSize="16" Foreground="#23FFAD"/>
-                    <TextBlock Text="{Binding FileName}" Margin="15,0" Foreground="White" Opacity="0.7" FontStyle="Italic" VerticalAlignment="Center" FontSize="12"/>
-                </StackPanel>
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="↺" Command="{Binding ResetCommand}" Width="40" Height="40" 
-                            Background="Transparent" BorderThickness="0" Foreground="White" Opacity="0.6" 
-                            ToolTip="Redefinir" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-                    
-                    <Button Content="–" Width="45" Height="40" Background="Transparent" BorderThickness="0" Foreground="White"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="BtnMinimize_Click" FontSize="16"/>
-                    
-                    <Button Content="✕" Width="45" Height="40" Background="Transparent" BorderThickness="0"
-                            shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="BtnClose_Click">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Foreground" Value="White"/>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E74C3C"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                <Grid.Background><LinearGradientBrush StartPoint="0,1" EndPoint="1,0"><GradientStop Color="#0F2040" Offset="0.0"/><GradientStop Color="#0A1428" Offset="1.0"/></LinearGradientBrush></Grid.Background>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="15,0"><TextBlock Text="MediaSlice" FontWeight="Bold" FontSize="16" Foreground="#23FFAD"/><TextBlock Text="{Binding FileName}" Margin="15,0" Foreground="White" Opacity="0.7" FontStyle="Italic" VerticalAlignment="Center" FontSize="12"/></StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" IsEnabled="True">
+                    <Button Content="↺" Command="{Binding ResetCommand}" Width="40" Height="40" Background="Transparent" BorderThickness="0" Foreground="White" Opacity="0.6" ToolTip="Redefinir" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                    <Button Content="–" Width="45" Height="40" Background="Transparent" BorderThickness="0" Foreground="White" shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="BtnMinimize_Click" FontSize="16"/>
+                    <Button Content="✕" Width="45" Height="40" Background="Transparent" BorderThickness="0" shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="BtnClose_Click"><Button.Style><Style TargetType="Button"><Setter Property="Foreground" Value="White"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#E74C3C"/></Trigger></Style.Triggers></Style></Button.Style></Button>
                 </StackPanel>
             </Grid>
 
-            <!-- ÁREA DO VÍDEO -->
+            <!-- VÍDEO -->
             <Grid Grid.Row="1" Margin="20,10,20,5" Background="Black">
-                <MediaElement x:Name="VideoPlayer" 
-                              Source="{Binding InputFilePath}" 
-                              LoadedBehavior="Manual" 
-                              UnloadedBehavior="Stop"
-                              Volume="0"
-                              HorizontalAlignment="Center" VerticalAlignment="Center"
-                              Visibility="{Binding IsVideo, Converter={StaticResource BoolToVis}}">
-                </MediaElement>
-
-                <TextBlock Text="Arraste sua mídia aqui" 
-                           HorizontalAlignment="Center" VerticalAlignment="Center" 
-                           FontSize="18" Opacity="0.5" IsHitTestVisible="False">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsFileLoaded}" Value="False">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+                <MediaElement x:Name="VideoPlayer" Source="{Binding InputFilePath}" LoadedBehavior="Manual" UnloadedBehavior="Stop" Volume="0" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsVideo, Converter={StaticResource BoolToVis}}"/>
+                <TextBlock Text="Arraste sua mídia aqui" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18" Opacity="0.5" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding IsFileLoaded}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
             </Grid>
 
-            <!-- ÁREA DA WAVEFORM (ÁUDIO) -->
+            <!-- WAVEFORM -->
             <Grid Grid.Row="2" Margin="20,0,20,10">
-                <ctrl:WaveformControl x:Name="WaveformCtrl"
-                    Points="{Binding WaveformPoints}" 
-                    Duration="{Binding Duration}" 
-                    StartTime="{Binding StartTime, Mode=TwoWay}" 
-                    EndTime="{Binding EndTime, Mode=TwoWay}"
-                    FadeIn="{Binding FadeIn}"
-                    FadeOut="{Binding FadeOut}"
-                    Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVis}}">
-                    <ctrl:WaveformControl.Background>
-                        <SolidColorBrush Color="#0F2040" Opacity="1"/>
-                    </ctrl:WaveformControl.Background>
-                </ctrl:WaveformControl>
-
-                <!-- Pop-ups Fade (Ajustados para ficarem sobre a waveform) -->
-                <Border Background="#000" CornerRadius="10" Padding="15,10" 
-                        Width="160" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                        Margin="10,0,0,10"
-                        Visibility="{Binding IsFadeInPopupOpen, Converter={StaticResource BoolToVis}}">
-                    <StackPanel>
-                        <TextBlock Text="{Binding FadeIn, StringFormat='Fade in {0:F0} s'}" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <Slider Minimum="0" Maximum="20" Value="{Binding FadeIn}" Foreground="#23FFAD"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Background="#000" CornerRadius="10" Padding="15,10" 
-                        Width="160" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                        Margin="60,0,0,10"
-                        Visibility="{Binding IsFadeOutPopupOpen, Converter={StaticResource BoolToVis}}">
-                    <StackPanel>
-                        <TextBlock Text="{Binding FadeOut, StringFormat='Fade out {0:F0} s'}" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/>
-                        <Slider Minimum="0" Maximum="20" Value="{Binding FadeOut}"/>
-                    </StackPanel>
-                </Border>
+                <ctrl:WaveformControl x:Name="WaveformCtrl" Points="{Binding WaveformPoints}" Duration="{Binding Duration}" StartTime="{Binding StartTime, Mode=TwoWay}" EndTime="{Binding EndTime, Mode=TwoWay}" FadeIn="{Binding FadeIn}" FadeOut="{Binding FadeOut}" ProgressPosition="{Binding ExportTimePosition}" Visibility="{Binding IsFileLoaded, Converter={StaticResource BoolToVis}}"><ctrl:WaveformControl.Background><SolidColorBrush Color="#0F2040"/></ctrl:WaveformControl.Background></ctrl:WaveformControl>
+                <!-- Pop-ups Fade -->
+                <Border Background="#000" CornerRadius="10" Padding="15,10" Width="160" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,10" Visibility="{Binding IsFadeInPopupOpen, Converter={StaticResource BoolToVis}}"><StackPanel><TextBlock Text="{Binding FadeIn, StringFormat='Fade in {0:F0} s'}" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/><Slider Minimum="0" Maximum="20" Value="{Binding FadeIn}" Foreground="#23FFAD"/></StackPanel></Border>
+                <Border Background="#000" CornerRadius="10" Padding="15,10" Width="160" Height="80" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="60,0,0,10" Visibility="{Binding IsFadeOutPopupOpen, Converter={StaticResource BoolToVis}}"><StackPanel><TextBlock Text="{Binding FadeOut, StringFormat='Fade out {0:F0} s'}" Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,10"/><Slider Minimum="0" Maximum="20" Value="{Binding FadeOut}"/></StackPanel></Border>
             </Grid>
 
             <!-- CONTROLES -->
             <Border Grid.Row="3" Padding="25" Background="#0F2040">
                 <StackPanel>
-                    <DockPanel Margin="0,0,0,15">
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                            <Button Content="{Binding PlayIcon}" Command="{Binding PlayCommand}" Style="{StaticResource RoundButton}" Width="50" Height="35" Margin="0,0,15,0"/>
-                            
-                            <Button Command="{Binding ToggleFadeInCommand}" Style="{StaticResource FadeButton}" Width="35" Height="35">
-                                <Path Data="M0,40 L40,0 L40,40 Z" Fill="#23FFAD" Width="12" Height="12" Stretch="Fill" Opacity="0.8"/>
-                            </Button>
-                            <Button Command="{Binding ToggleFadeOutCommand}" Style="{StaticResource FadeButton}" Width="35" Height="35">
-                                <Path Data="M0,0 L40,40 L0,40 Z" Fill="#23FFAD" Width="12" Height="12" Stretch="Fill" Opacity="0.8"/>
-                            </Button>
-
-                            <Border Background="#1E3250" CornerRadius="10" Padding="12,5" Margin="15,0,0,0">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Início:" Foreground="White" Opacity="0.7" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <TextBox Text="{Binding StartTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"
-                                             Width="50" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
-                                    <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="12" VerticalAlignment="Center" Margin="3,0,10,0"/>
-                                    
-                                    <TextBlock Text="—" Foreground="White" Opacity="0.3" FontSize="12" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    
-                                    <TextBlock Text="Fim:" Foreground="White" Opacity="0.7" FontSize="12" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <TextBox Text="{Binding EndTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"
-                                             Width="50" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent" CaretBrush="#23FFAD"/>
-                                    <TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="12" VerticalAlignment="Center" Margin="3,0,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                        
+                    <DockPanel>
                         <Grid DockPanel.Dock="Right">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            
-                            <Button Grid.Column="0" Content="Exportar Áudio" Command="{Binding ExportAudioCommand}" 
-                                    Background="White" Foreground="Black" FontWeight="Bold" FontSize="14"
-                                    Padding="0" Margin="10,0,0,0" Style="{StaticResource ModernButton}" Width="130" Height="42"/>
-
-                            <Button Grid.Column="1" Content="Exportar Vídeo" Command="{Binding ProcessCommand}" 
-                                    Background="White" Foreground="Black" FontWeight="Bold" FontSize="14"
-                                    Padding="0" Margin="10,0,0,0" Style="{StaticResource ModernButton}" Width="130" Height="42"/>
-
-                            <Button Grid.Column="2" Content="Abrir" Command="{Binding SelectFileCommand}" 
-                                    Background="White" Foreground="Black" FontWeight="Bold" FontSize="14"
-                                    Padding="0" Margin="10,0,0,0" Style="{StaticResource ModernButton}" Width="130" Height="42"/>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <Button Grid.Column="0" Content="Exportar Áudio" Command="{Binding ExportAudioCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="100" Height="32" Margin="8,0,0,0"/>
+                            <Button Grid.Column="1" Content="Exportar Vídeo" Command="{Binding ProcessCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="100" Height="32" Margin="8,0,0,0"/>
+                            <Button Grid.Column="2" Content="Abrir" Command="{Binding SelectFileCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="80" Height="32" Margin="8,0,0,0"/>
                         </Grid>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="{Binding PlayIcon}" Command="{Binding PlayCommand}" Style="{StaticResource RoundButton}" Width="40" Height="30" Margin="0,0,10,0"/>
+                            <Button Command="{Binding ToggleFadeInCommand}" Style="{StaticResource FadeButton}" Width="28" Height="28"><Path Data="M0,40 L40,0 L40,40 Z" Fill="#23FFAD" Width="10" Height="10" Stretch="Fill" Opacity="0.8"/></Button>
+                            <Button Command="{Binding ToggleFadeOutCommand}" Style="{StaticResource FadeButton}" Width="28" Height="28"><Path Data="M0,0 L40,40 L0,40 Z" Fill="#23FFAD" Width="10" Height="10" Stretch="Fill" Opacity="0.8"/></Button>
+                            <Border Background="#1E3250" CornerRadius="8" Padding="10,4" Margin="12,0,0,0"><StackPanel Orientation="Horizontal"><TextBlock Text="Início:" Foreground="White" Opacity="0.7" FontSize="11" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBox Text="{Binding StartTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="12" Width="45" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent"/><TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="11" VerticalAlignment="Center" Margin="3,0,8,0"/><TextBlock Text="—" Foreground="White" Opacity="0.3" FontSize="11" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBlock Text="Fim:" Foreground="White" Opacity="0.7" FontSize="11" VerticalAlignment="Center" Margin="0,0,5,0"/><TextBox Text="{Binding EndTime, StringFormat=F1, UpdateSourceTrigger=PropertyChanged}" Foreground="#23FFAD" FontWeight="Bold" FontSize="12" Width="45" TextAlignment="Center" Background="Transparent" BorderBrush="Transparent"/><TextBlock Text="s" Foreground="White" Opacity="0.5" FontSize="11" VerticalAlignment="Center" Margin="3,0,0,0"/></StackPanel></Border>
+                            <StackPanel Orientation="Horizontal" Margin="15,0,0,0" IsEnabled="{Binding IsFileLoaded}">
+                                <ComboBox ItemsSource="{Binding AudioStreams}" SelectedItem="{Binding SelectedAudioStream}" Width="160" Height="28" Visibility="{Binding IsVideo, Converter={StaticResource BoolToVis}}">
+                                    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Language}" Foreground="White"/></DataTemplate></ComboBox.ItemTemplate>
+                                    <ComboBox.Style><Style TargetType="ComboBox"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox"><Grid><ToggleButton x:Name="ToggleButton" Focusable="False" IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" ClickMode="Press"><ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="#1E3250" BorderBrush="#23FFAD" BorderThickness="1" CornerRadius="6" Padding="8,4"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="20"/></Grid.ColumnDefinitions><ContentPresenter Grid.Column="0" VerticalAlignment="Center"/><Path Grid.Column="1" Data="M0,0 L4,4 L8,0" Fill="#23FFAD" HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="#23FFAD" StrokeThickness="1"/></Grid></Border></ControlTemplate></ToggleButton.Template></ToggleButton><ContentPresenter x:Name="ContentSite" IsHitTestVisible="False" Content="{Binding SelectedAudioStream.Language}" Margin="10,0,30,0" VerticalAlignment="Center" HorizontalAlignment="Left"><ContentPresenter.Resources><Style TargetType="TextBlock"><Setter Property="Foreground" Value="White"/></Style></ContentPresenter.Resources></ContentPresenter><Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide"><Grid x:Name="DropDown" SnapsToDevicePixels="True" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}"><Border x:Name="DropDownBorder" Background="#1E3250" BorderBrush="#23FFAD" BorderThickness="1" CornerRadius="6" Margin="0,2,0,0"><ScrollViewer Margin="4" SnapsToDevicePixels="True"><StackPanel IsItemsHost="True"/></ScrollViewer></Border></Grid></Popup></Grid></ControlTemplate></Setter.Value></Setter></Style></ComboBox.Style>
+                                    <ComboBox.ItemContainerStyle><Style TargetType="ComboBoxItem"><Setter Property="Background" Value="Transparent"/><Setter Property="Foreground" Value="White"/><Setter Property="Padding" Value="8,5"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border></ControlTemplate></Setter.Value></Setter><Style.Triggers><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#0F2040"/><Setter Property="Foreground" Value="#23FFAD"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#0F2040"/></Trigger></Style.Triggers></Style></ComboBox.ItemContainerStyle>
+                                </ComboBox>
+                                <TextBlock Text="🔊" Foreground="#23FFAD" VerticalAlignment="Center" Margin="15,0,8,0" FontSize="14"/><Slider Width="80" VerticalAlignment="Center" Minimum="0" Maximum="1" Value="{Binding Volume}" Foreground="#23FFAD" SmallChange="0.05" LargeChange="0.1"/>
+                            </StackPanel>
+                        </StackPanel>
                     </DockPanel>
 
-                    <!-- Barra de Progresso Multicolorida -->
-                    <Border Margin="0,10,0,0" Visibility="{Binding ShowProgress, Converter={StaticResource BoolToVis}}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            
-                            <TextBlock Grid.Row="0" Foreground="#23FFAD" FontSize="11" Margin="0,0,0,5">
-                                <Run Text="Exportando: "/><Run Text="{Binding ExportProgress, StringFormat={}{0:F0}%}"/>
-                            </TextBlock>
-                            
-                            <ItemsControl Grid.Row="1" x:Name="ProgressBars">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Rows="1" Columns="50"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </Grid>
-                    </Border>
-
-                    <!-- Configuração FFmpeg -->
+                    <!-- BARRA DE PROGRESSO ÚNICA E LIMPA (SEM QUADRADOS) -->
                     <Grid Margin="0,15,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="ffmpeg exe:" Foreground="White" Opacity="0.6" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="11"/>
-                        <TextBox Grid.Column="1" Text="{Binding FFmpegPath, UpdateSourceTrigger=PropertyChanged}" 
-                                 Background="#0A1428" Foreground="White" Opacity="0.5" BorderThickness="0" Padding="5,2" FontSize="11" VerticalAlignment="Center"/>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal">
-                            <Button Content="..." Command="{Binding BrowseFFmpegCommand}" 
-                                    Width="30" Height="20" Margin="5,0,0,0" Background="#1E3250" Foreground="White" BorderThickness="0" FontSize="10"/>
-                            <Button Content="reset" Command="{Binding ResetFFmpegCommand}" 
-                                    Width="40" Height="20" Margin="5,0,0,0" Background="#1E3250" Foreground="White" BorderThickness="0" FontSize="10"/>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Status}" Foreground="#23FFAD" FontSize="11" Margin="0,0,10,0"/>
+                            <TextBlock Foreground="White" FontSize="11" Opacity="0.8" Visibility="{Binding IsProcessing, Converter={StaticResource BoolToVis}}">
+                                <Run Text="— "/><Run Text="{Binding ExportProgress, StringFormat={}{0:F0}%}"/>
+                            </TextBlock>
+                        </StackPanel>
+                        
+                        <ProgressBar Grid.Column="1" Margin="20,0" Height="4" Background="#1E3250" Foreground="#23FFAD" BorderThickness="0" 
+                                     Value="{Binding ExportProgress}" Visibility="{Binding IsProcessing, Converter={StaticResource BoolToVis}}"/>
+                        <ProgressBar Grid.Column="1" Margin="20,0" Height="4" Background="#1E3250" Foreground="#23FFAD" BorderThickness="0" 
+                                     IsIndeterminate="True" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}"/>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Opacity="0.5">
+                            <TextBlock Text="ffmpeg:" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="10"/><TextBox Text="{Binding FFmpegPath}" Background="Transparent" Foreground="White" BorderThickness="0" FontSize="10" VerticalAlignment="Center"/><Button Content="..." Command="{Binding BrowseFFmpegCommand}" Width="25" Height="18" Background="#1E3250" Foreground="White" BorderThickness="0" Margin="5,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

@@ -9,6 +9,9 @@ Set-Location $path_script
 Set-Location "$PSScriptRoot\MediaSlice"
 dotnet publish MediaSlice.csproj -c Release -r win-x64 --self-contained
 
-# "D:\projetos\c_sharp\audioslice\AudioSlice\bin\Release\net10.0-windows\win-x64\publish\AudioSlice.exe"
+$publish_path = "$PSScriptRoot\MediaSlice\bin\Release\net10.0-windows10.0.17763\win-x64\publish\"
+if (Test-Path $publish_path) {
+    explorer.exe $publish_path
+}
 
 Set-Location $path_script

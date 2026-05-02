@@ -4,11 +4,13 @@
         xmlns:vm="clr-namespace:MediaSlice.ViewModels"
         xmlns:ctrl="clr-namespace:MediaSlice.Controls"
         xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
         Title="MediaSlice" Height="680" Width="1100" MinHeight="600" MinWidth="800"
-        Background="Transparent" AllowsTransparency="True" WindowStyle="None" WindowStartupLocation="CenterScreen">
+        Background="#0A1428" WindowStyle="None" WindowStartupLocation="CenterScreen">
 
     <WindowChrome.WindowChrome>
-        <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="7" GlassFrameThickness="0" CornerRadius="10"/>
+        <shell:WindowChrome CaptionHeight="40" ResizeBorderThickness="7" GlassFrameThickness="1" CornerRadius="10"/>
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -48,7 +50,9 @@
 
             <!-- VÍDEO -->
             <Grid Grid.Row="1" Margin="20,10,20,5" Background="Black">
-                <MediaElement x:Name="VideoPlayer" LoadedBehavior="Manual" UnloadedBehavior="Stop" Volume="0" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsVideo, Converter={StaticResource BoolToVis}}"/>
+                <wfi:WindowsFormsHost x:Name="PlayerHost" Visibility="{Binding IsVideo, Converter={StaticResource BoolToVis}}">
+                    <wf:Panel x:Name="PlayerPanel" BackColor="Black" />
+                </wfi:WindowsFormsHost>
                 
                 <!-- LEGENDA EM TEMPO REAL -->
                 <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,30" Background="#AA000000" CornerRadius="5" Padding="10,5" MaxWidth="800">
@@ -93,10 +97,9 @@
                 <StackPanel>
                     <DockPanel>
                         <Grid DockPanel.Dock="Right">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <Button Grid.Column="0" Content="Exportar Áudio" Command="{Binding ExportAudioCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="100" Height="32" Margin="8,0,0,0"/>
-                            <Button Grid.Column="1" Content="Exportar Vídeo" Command="{Binding ProcessCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="100" Height="32" Margin="8,0,0,0"/>
-                            <Button Grid.Column="2" Content="Abrir" Command="{Binding SelectFileCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="80" Height="32" Margin="8,0,0,0"/>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <Button x:Name="btnExportar" Grid.Column="0" Content="Exportar" Command="{Binding ExportCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="100" Height="32" Margin="8,0,0,0"/>
+                            <Button x:Name="btnAbrir" Grid.Column="1" Content="Abrir" Command="{Binding SelectFileCommand}" Background="White" Foreground="Black" FontWeight="Bold" FontSize="12" Style="{StaticResource ModernButton}" Width="80" Height="32" Margin="8,0,0,0"/>
                         </Grid>
                         
                         <StackPanel Orientation="Horizontal">
@@ -115,9 +118,9 @@
                         </StackPanel>
                     </DockPanel>
 
-                    <!-- BARRA DE PROGRESSO PRINCIPAL (IMPONENTE E MULTICOLORIDA) -->
+                    <!-- BARRA DE PROGRESSO PRINCIPAL -->
                     <Grid Margin="0,15,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Status}" Foreground="#23FFAD" FontSize="11" Margin="0,0,10,0"/>
                             <TextBlock Foreground="White" FontSize="11" Opacity="0.8" Visibility="{Binding IsProcessing, Converter={StaticResource BoolToVis}}">
@@ -125,32 +128,45 @@
                             </TextBlock>
                         </StackPanel>
                         
-                        <ProgressBar Grid.Column="1" Margin="20,0" Height="12" Background="#1E3250" BorderThickness="0" 
+                        <ProgressBar Grid.Column="1" Margin="20,0,0,0" Height="8" Background="#1E3250" BorderThickness="0" 
                                      Value="{Binding ExportProgress}" Visibility="{Binding ShowProgress, Converter={StaticResource BoolToVis}}">
                             <ProgressBar.Foreground>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#23FFAD" Offset="0.0"/>
-                                    <GradientStop Color="#009CD9" Offset="0.5"/>
-                                    <GradientStop Color="#5454FF" Offset="1.0"/>
+                                    <GradientStop Color="#23FFAD" Offset="0.0"/><GradientStop Color="#009CD9" Offset="0.5"/><GradientStop Color="#5454FF" Offset="1.0"/>
                                 </LinearGradientBrush>
                             </ProgressBar.Foreground>
                         </ProgressBar>
                         
-                        <ProgressBar Grid.Column="1" Margin="20,0" Height="12" Background="#1E3250" BorderThickness="0" 
+                        <ProgressBar Grid.Column="1" Margin="20,0,0,0" Height="8" Background="#1E3250" BorderThickness="0" 
                                      IsIndeterminate="True" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVis}}">
                             <ProgressBar.Foreground>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#23FFAD" Offset="0.0"/>
-                                    <GradientStop Color="#009CD9" Offset="0.5"/>
-                                    <GradientStop Color="#5454FF" Offset="1.0"/>
+                                    <GradientStop Color="#23FFAD" Offset="0.0"/><GradientStop Color="#009CD9" Offset="0.5"/><GradientStop Color="#5454FF" Offset="1.0"/>
                                 </LinearGradientBrush>
                             </ProgressBar.Foreground>
                         </ProgressBar>
-
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Opacity="0.5">
-                            <TextBlock Text="ffmpeg:" Foreground="White" VerticalAlignment="Center" Margin="0,0,10,0" FontSize="10"/><TextBox Text="{Binding FFmpegPath}" Background="Transparent" Foreground="White" BorderThickness="0" FontSize="10" VerticalAlignment="Center"/><Button Content="..." Command="{Binding BrowseFFmpegCommand}" Width="25" Height="18" Background="#1E3250" Foreground="White" BorderThickness="0" Margin="5,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
-                        </StackPanel>
                     </Grid>
+
+                    <!-- CONFIGURAÇÕES DE CAMINHOS -->
+                    <UniformGrid Columns="2" Margin="0,15,0,0">
+                        <!-- Campo MPC -->
+                        <Border Margin="0,0,10,0" Background="#162A4D" CornerRadius="8" Padding="12,8">
+                            <DockPanel>
+                                <TextBlock Text="MPC-HC:" Foreground="White" Opacity="0.5" FontSize="10" DockPanel.Dock="Top" Margin="0,0,0,5"/>
+                                <Button Content="..." Command="{Binding BrowseMPCCommand}" DockPanel.Dock="Right" Width="30" Height="22" Background="#1E3250" Foreground="White" BorderThickness="0" Margin="10,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                <TextBox Text="{Binding MPCPath, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" Foreground="#23FFAD" BorderThickness="0" FontSize="11" VerticalAlignment="Center" CaretBrush="White"/>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Campo FFmpeg -->
+                        <Border Margin="10,0,0,0" Background="#162A4D" CornerRadius="8" Padding="12,8">
+                            <DockPanel>
+                                <TextBlock Text="FFMPEG:" Foreground="White" Opacity="0.5" FontSize="10" DockPanel.Dock="Top" Margin="0,0,0,5"/>
+                                <Button Content="..." Command="{Binding BrowseFFmpegCommand}" DockPanel.Dock="Right" Width="30" Height="22" Background="#1E3250" Foreground="White" BorderThickness="0" Margin="10,0,0,0" shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
+                                <TextBox Text="{Binding FFmpegPath, UpdateSourceTrigger=PropertyChanged}" Background="Transparent" Foreground="#23FFAD" BorderThickness="0" FontSize="11" VerticalAlignment="Center" CaretBrush="White"/>
+                            </DockPanel>
+                        </Border>
+                    </UniformGrid>
                 </StackPanel>
             </Border>
         </Grid>

@@ -29,9 +29,11 @@ namespace MediaSlice.ViewModels
         private readonly DispatcherTimer _playbackTimer;
         private readonly string _settingsFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.dat");
         private readonly string _defaultFFmpeg = @"D:\programas\executaveis\ffmpeg\bin\ffmpeg.exe";
+        private readonly string _defaultMPC = @"D:\programas\executaveis\MPC-HC.2.7.1.x64\mpc-hc64.exe";
 
         private string _inputFilePath = "";
         private string _ffmpegPath = "";
+        private string _mpcPath = "";
         private string _status = "Clique para selecionar sua mídia";
         private bool _isProcessing;
         private float[] _waveformPoints = Array.Empty<float>();
@@ -59,6 +61,7 @@ namespace MediaSlice.ViewModels
 
         public string InputFilePath { get => _inputFilePath; set { _inputFilePath = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsFileLoaded)); OnPropertyChanged(nameof(IsVideo)); OnPropertyChanged(nameof(FileName)); } }
         public string FFmpegPath { get => _ffmpegPath; set { _ffmpegPath = value; OnPropertyChanged(); SaveSettings(); } }
+        public string MPCPath { get => _mpcPath; set { _mpcPath = value; OnPropertyChanged(); SaveSettings(); } }
         public bool IsFileLoaded => !string.IsNullOrEmpty(InputFilePath);
         public string FileName => IsFileLoaded ? Path.GetFileName(InputFilePath) : "";
         public bool IsVideo => IsFileLoaded && (new[] { ".mp4", ".mkv", ".avi", ".mov", ".wmv", ".webm" }.Contains(Path.GetExtension(InputFilePath).ToLower()));
@@ -94,22 +97,24 @@ namespace MediaSlice.ViewModels
         public ICommand SelectFileCommand { get; }
         public ICommand BrowseFFmpegCommand { get; }
         public ICommand ResetFFmpegCommand { get; }
+        public ICommand BrowseMPCCommand { get; }
+        public ICommand OpenMPCCommand { get; }
         public ICommand PlayCommand { get; }
-        public ICommand ProcessCommand { get; }
-        public ICommand ExportAudioCommand { get; }
+        public ICommand ExportCommand { get; }
         public ICommand ResetCommand { get; }
         public ICommand ToggleFadeInCommand { get; }
         public ICommand ToggleFadeOutCommand { get; }
 
         public MainViewModel()
         {
-            _ffmpegPath = _defaultFFmpeg; LoadSettings();
+            _ffmpegPath = _defaultFFmpeg; _mpcPath = _defaultMPC; LoadSettings();
             SelectFileCommand = new RelayCommand(_ => SelectFile());
             BrowseFFmpegCommand = new RelayCommand(_ => BrowseFFmpeg());
             ResetFFmpegCommand = new RelayCommand(_ => FFmpegPath = _defaultFFmpeg);
+            BrowseMPCCommand = new RelayCommand(_ => BrowseMPC());
+            OpenMPCCommand = new RelayCommand(_ => OpenInMPC(), _ => IsVideo && File.Exists(MPCPath));
             PlayCommand = new RelayCommand(_ => TogglePlay(), _ => CanEdit);
-            ProcessCommand = new RelayCommand(async _ => await ProcessMedia(), _ => CanEdit);
-            ExportAudioCommand = new RelayCommand(async _ => await ExportAudioOnly(), _ => CanEdit && IsVideo);
+            ExportCommand = new RelayCommand(async _ => await ExportMedia(), _ => CanEdit);
             ResetCommand = new RelayCommand(_ => ResetSelection());
             ToggleFadeInCommand = new RelayCommand(_ => IsFadeInPopupOpen = !IsFadeInPopupOpen);
             ToggleFadeOutCommand = new RelayCommand(_ => IsFadeOutPopupOpen = !IsFadeOutPopupOpen);
@@ -134,10 +139,19 @@ namespace MediaSlice.ViewModels
         }
 
         public void LoadFile(string filePath) { if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath)) { InputFilePath = filePath; Status = "Carregando..."; AudioStreams.Clear(); _selectedAudioStream = null; _allStreams.Clear(); _ = LoadAudioDataAsync(false, false, 0); } }
-        public void SelectFile() { var dialog = new OpenFileDialog { Filter = "Mídias|*.mp3;*.mp4;*.mkv;*.avi;*.mov;*.wav|Todos|*.*" }; if (dialog.ShowDialog() == true) LoadFile(dialog.FileName); }
-        private void BrowseFFmpeg() { var dialog = new OpenFileDialog { Filter = "ffmpeg.exe|ffmpeg.exe" }; if (dialog.ShowDialog() == true) FFmpegPath = dialog.FileName; }
-        private void LoadSettings() { if (File.Exists(_settingsFile)) try { _ffmpegPath = File.ReadAllText(_settingsFile); } catch { } }
-        private void SaveSettings() { try { File.WriteAllText(_settingsFile, FFmpegPath); } catch { } }
+        public void SelectFile() { var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Mídias|*.mp3;*.mp4;*.mkv;*.avi;*.mov;*.wav|Todos|*.*" }; if (dialog.ShowDialog() == true) LoadFile(dialog.FileName); }
+        private void BrowseFFmpeg() { var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "ffmpeg.exe|ffmpeg.exe" }; if (dialog.ShowDialog() == true) FFmpegPath = dialog.FileName; }
+        private void BrowseMPC() { var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "mpc-hc64.exe|mpc-hc64.exe" }; if (dialog.ShowDialog() == true) MPCPath = dialog.FileName; }
+        private void LoadSettings() { if (File.Exists(_settingsFile)) try { var lines = File.ReadAllLines(_settingsFile); if (lines.Length > 0) _ffmpegPath = lines[0]; if (lines.Length > 1) _mpcPath = lines[1]; } catch { } }
+        private void SaveSettings() { try { File.WriteAllLines(_settingsFile, new[] { FFmpegPath, MPCPath }); } catch { } }
+
+        private void OpenInMPC()
+        {
+            if (!IsVideo || !File.Exists(MPCPath)) return;
+            var ts = TimeSpan.FromSeconds(StartTime);
+            string pos = ts.ToString(@"hh\:mm\:ss\.fff");
+            Process.Start(new ProcessStartInfo { FileName = MPCPath, Arguments = $"\"{InputFilePath}\" /startpos {pos} /play", UseShellExecute = true });
+        }
 
         private async Task LoadAudioDataAsync(bool isStreamSwitch, bool wasPlaying, double resumePos)
         {
@@ -230,9 +244,9 @@ namespace MediaSlice.ViewModels
 
         private void StopAudio() { _playbackTimer.Stop(); _wavePlayer?.Stop(); _wavePlayer?.Dispose(); _wavePlayer = null; _audioFileReader?.Dispose(); _audioFileReader = null; PlayIcon = "▶"; CurrentSubtitleText = ""; ExportTimePosition = -1; }
 
-        private async Task ProcessMedia()
+        private async Task ExportMedia()
         {
-            var saveDialog = new SaveFileDialog { Filter = "Original|*" + Path.GetExtension(InputFilePath), FileName = "corte_" + FileName };
+            var saveDialog = new Microsoft.Win32.SaveFileDialog { Filter = "Original|*" + Path.GetExtension(InputFilePath), FileName = "corte_" + FileName };
             if (saveDialog.ShowDialog() == true) {
                 StopAudio(); IsProcessing = true; ShowProgress = true; ExportProgress = 0; ExportTimePosition = StartTime;
                 var subtitleIndices = _allStreams.Where(s => s.Type == StreamType.Subtitle && (s.IsPortuguese || s.IsEnglish)).Select(s => s.Index).ToList();
@@ -241,17 +255,6 @@ namespace MediaSlice.ViewModels
                     await _ffmpegService.ProcessMediaAsync(FFmpegPath, InputFilePath, saveDialog.FileName, new() { new() { StartTime = StartTime, EndTime = EndTime, FadeIn = FadeIn, FadeOut = FadeOut } }, progress, SelectedAudioStream?.Index ?? 0, subtitleIndices);
                     Status = "Concluído!";
                 } catch { Status = "Erro"; } finally { IsProcessing = false; ShowProgress = false; ExportTimePosition = -1; }
-            }
-        }
-
-        private async Task ExportAudioOnly()
-        {
-            var saveDialog = new SaveFileDialog { Filter = "MP3|*.mp3", FileName = "audio_" + Path.GetFileNameWithoutExtension(FileName) + ".mp3" };
-            if (saveDialog.ShowDialog() == true) {
-                StopAudio(); IsProcessing = true; ShowProgress = true; ExportProgress = 0;
-                var progress = new Progress<double>(p => { ExportProgress = p; ExportTimePosition = StartTime + (p / 100.0 * (EndTime - StartTime)); });
-                try { await _ffmpegService.ExtractAudioAsync(FFmpegPath, InputFilePath, saveDialog.FileName, StartTime, EndTime, progress); Status = "Concluído!"; } catch { Status = "Erro"; }
-                finally { IsProcessing = false; ShowProgress = false; ExportTimePosition = -1; }
             }
         }
 

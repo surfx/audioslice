@@ -9,7 +9,7 @@ using System.Windows.Shapes;
 
 namespace MediaSlice.Controls
 {
-    public partial class WaveformControl : UserControl, INotifyPropertyChanged
+    public partial class WaveformControl : System.Windows.Controls.UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty PointsProperty = DependencyProperty.Register("Points", typeof(float[]), typeof(WaveformControl), new PropertyMetadata(null, OnPointsChanged));
         public static readonly DependencyProperty DurationProperty = DependencyProperty.Register("Duration", typeof(double), typeof(WaveformControl), new PropertyMetadata(0.0, OnSelectionChanged));
@@ -45,7 +45,7 @@ namespace MediaSlice.Controls
 
         private void InvalidateVisuals()
         {
-            Application.Current.Dispatcher.BeginInvoke(new Action(() => { DrawWaveform(); UpdateOverlay(); }), System.Windows.Threading.DispatcherPriority.Render);
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => { DrawWaveform(); UpdateOverlay(); }), System.Windows.Threading.DispatcherPriority.Render);
         }
 
         private void DrawWaveform()
@@ -58,23 +58,23 @@ namespace MediaSlice.Controls
                 double xScale = ActualWidth / (Points.Length - 1);
                 float maxVal = Points.Max();
                 if (maxVal <= 0) maxVal = 1;
-                ctx.BeginFigure(new Point(0, midY), true, true);
+                ctx.BeginFigure(new System.Windows.Point(0, midY), true, true);
                 for (int i = 0; i < Points.Length; i++) {
                     double t = (double)i / (Points.Length - 1) * Duration;
                     double factor = GetFadeFactor(t);
                     double h = Math.Max(1, (Points[i] / maxVal) * (ActualHeight * 0.7) / 2 * factor);
-                    ctx.LineTo(new Point(i * xScale, midY - h), true, false);
+                    ctx.LineTo(new System.Windows.Point(i * xScale, midY - h), true, false);
                 }
                 for (int i = Points.Length - 1; i >= 0; i--) {
                     double t = (double)i / (Points.Length - 1) * Duration;
                     double factor = GetFadeFactor(t);
                     double h = Math.Max(1, (Points[i] / maxVal) * (ActualHeight * 0.7) / 2 * factor);
-                    ctx.LineTo(new Point(i * xScale, midY + h), true, false);
+                    ctx.LineTo(new System.Windows.Point(i * xScale, midY + h), true, false);
                 }
             }
             geometry.Freeze();
             WaveformPath.Data = geometry;
-            WaveformPath.Stroke = new SolidColorBrush(Color.FromRgb(35, 255, 173));
+            WaveformPath.Stroke = new SolidColorBrush(System.Windows.Media.Color.FromRgb(35, 255, 173));
             WaveformPath.StrokeThickness = 0.5;
         }
 
@@ -138,7 +138,7 @@ namespace MediaSlice.Controls
             else { EndTime = Math.Max(clickedTime, StartTime + 0.1); RequestPreview?.Invoke(Math.Max(StartTime, EndTime - 3.0)); }
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        private void OnMouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             if (!_isDraggingStart && !_isDraggingEnd) return;
 
@@ -152,7 +152,7 @@ namespace MediaSlice.Controls
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (_isDraggingStart) { _isDraggingStart = false; LeftMarker.ReleaseMouseCapture(); }
-            if (_isDraggingEnd) { _isDraggingEnd = false; RightMarker.ReleaseMouseCapture(); RequestPreview?.Invoke(Math.Max(StartTime, EndTime - 3.0)); }
+            if (_isDraggingEnd) { _isDraggingEnd = false; RightMarker.ReleaseMouseCapture(); RequestPreview?.Invoke(EndTime); }
         }
 
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
